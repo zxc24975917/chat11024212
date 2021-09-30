@@ -1,9 +1,11 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://thunkable.github.io/webviewer-extension/thunkableWebviewerExtension.js" type="text/javascript"></script>
 </head>
 <body>
-  <div>
+  <div style="display:none">
    請輸入問題：
    <input id="say" name="say" type="text" value="" size="80" onkeydown="keyin(event)"/> <!-- 按 enter 時呼叫 keyin() 回答 --> 
    <input type="submit" value="送出" onclick="say()"/> <!-- 當送出按鈕按下，就呼叫 say() 函數回答 --> 
@@ -72,7 +74,14 @@ var qaList = [
       return Math.floor(Math.random()*n);
     }
     
-    function say() { // 當送出鍵按下時，會呼叫這個函數進行回答動作
+	// when we get a message from the app, display it on the page
+ThunkableWebviewerExtension.receiveMessage(function(message) {
+  // Do something with your message
+  say(message);
+});
+
+    function say(message) { // 當送出鍵按下時，會呼叫這個函數進行回答動作
+	document.getElementById("say").value = message;
       append(document.getElementById("say").value); // 先將使用者輸入的問句放到「對話區」顯示。
       answer(); // 然後回答使用者的問題。
     }
@@ -89,8 +98,11 @@ var qaList = [
     }
 
     function answer() { // 回答問題
+	var r = getAnswer();
+	ThunkableWebviewerExtension.postMessage(r);
+
       setTimeout(function () { // 停頓 1 到 3 秒再回答問題 (因為若回答太快就不像人了，人打字需要時間)
-        append(">> "+getAnswer());
+        append(">> "+r);
       }, 1000+random(2000));
     }
     
